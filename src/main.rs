@@ -1,9 +1,10 @@
-use std::path::PathBuf;
-
-use anyhow::bail;
+use std::{
+    path::PathBuf,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 use {
-    anyhow::{anyhow, Result},
+    anyhow::{anyhow, bail, Result},
     clap::{Parser, Subcommand},
     trash,
 };
@@ -14,6 +15,13 @@ enum ArgCmd {
     Trash {
         #[arg(help = "Files to be sent to the system's trash bin.")]
         files: Vec<PathBuf>,
+    },
+    #[command(about = "Permanently delete files from the system's trash bin.")]
+    Compact {
+        #[arg(
+            help = "How old a file must be (measured in days), from the time it's recycled, to be eligible for permanent deletion."
+        )]
+        period: u64,
     },
 }
 
@@ -27,7 +35,30 @@ struct Args {
 }
 
 fn trash_files(files: Vec<PathBuf>) -> Result<()> {
-    trash::remove_all(files).or_else(|_| Err(anyhow!("Item(s) could not be deleted.")))
+    trash::delete_all(files).or_else(|_| Err(anyhow!("Item(s) could not be deleted.")))?;
+    println!("All file(s) trashed successfully.");
+    Ok(())
+}
+
+fn compact_files(from: u64) -> Result<()> {
+    let eligible_trash: Vec<_> = trash::os_limited::list()?
+        .into_iter()
+        .filter(|garbage| {
+            garbage.time_deleted as u64
+                <= SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .saturating_sub(Duration::from_secs(86400 * from))
+                    .as_secs()
+        })
+        .collect();
+
+    let deleted = eligible_trash.len();
+    trash::os_limited::purge_all(eligible_trash)?;
+
+    println!("{deleted} files(s) permanently deleted!");
+
+    Ok(())
 }
 
 pub fn main() -> Result<()> {
@@ -41,6 +72,7 @@ pub fn main() -> Result<()> {
             }
         },
         Some(ArgCmd::Trash { files }) => trash_files(files)?,
+        Some(ArgCmd::Compact { period }) => compact_files(period)?,
     }
 
     Ok(())
