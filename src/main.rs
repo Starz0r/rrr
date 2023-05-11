@@ -23,6 +23,8 @@ enum ArgCmd {
         )]
         period: u64,
     },
+    #[command(about = "Restores files from the system's trash bin.")]
+    Restore {},
 }
 
 #[derive(Parser, Debug)]
@@ -61,6 +63,14 @@ fn compact_files(from: u64) -> Result<()> {
     Ok(())
 }
 
+fn restore_files() -> Result<()> {
+    let mut garbage = trash::os_limited::list()?;
+    garbage.sort_by(|a, b| b.time_deleted.cmp(&a.time_deleted));
+    let last_item = vec![garbage.into_iter().nth(0).unwrap()];
+    trash::os_limited::restore_all(last_item)?;
+    Ok(())
+}
+
 pub fn main() -> Result<()> {
     let argv = Args::parse();
 
@@ -73,6 +83,7 @@ pub fn main() -> Result<()> {
         },
         Some(ArgCmd::Trash { files }) => trash_files(files)?,
         Some(ArgCmd::Compact { period }) => compact_files(period)?,
+        Some(ArgCmd::Restore {}) => restore_files()?,
     }
 
     Ok(())
