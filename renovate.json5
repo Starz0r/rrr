@@ -1,0 +1,40 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "enabled": true,
+    "rust": {
+        "enabled": true,
+        "minimumReleaseAge": "14 days"
+    },
+    "vulnerabilityAlerts": {
+        "enabled": true,
+        "groupName": null,
+        "schedule": [],
+        "minimumReleaseAge": null,
+        "branchTopic": "{{{datasource}}}-{{{depName}}}-vulnerability",
+        "prCreation": "immediate"
+    },
+    "lockFileMaintenance": {
+        "enabled": true,
+        "recreateWhen": "always",
+        "rebaseStalePrs": true,
+        "branchTopic": "lock-file-maintenance",
+        "commitMessageAction": "Lock file maintenance",
+        "commitMessageTopic": null,
+        "commitMessageExtra": null,
+        "schedule": [
+            "before 4am on monday"
+        ],
+        "groupName": null,
+        "prBodyDefinitions": {
+            "Change": "All locks refreshed"
+        }
+    },
+	"dependencyDashboardApproval": true,
+	"rangeStrategy": "update-lockfile",
+	"commitMessagePrefix": "pip: ",
+    "automerge": false,
+    "separateMinorPatch": true,
+	"separateMultipleMinor": true,
+    "prConcurrentLimit": 15,
+    "prHourlyLimit": 5
+}
