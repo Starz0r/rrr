@@ -3,6 +3,9 @@ name = "rrr"
 version = "0.1.0"
 authors = ["Starz0r"]
 edition = "2018"
+rust-version = "1.62.0"
+build = "build.rs"
+resolver = "1"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -10,3 +13,10 @@ edition = "2018"
 trash = "=2.0.4"
 anyhow = "=1.0.66"
 clap = { version = "=4.0.29", features = ["derive"] }
+chrono = "=0.4.9"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
+debug = false
