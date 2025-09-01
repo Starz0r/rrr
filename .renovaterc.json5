@@ -5,6 +5,12 @@
         "enabled": true,
         "minimumReleaseAge": "14 days"
     },
+	"bumpVersions": [
+		{
+			"name": "Always bump by patch, then minor, first.",
+			"bumpType": "{{#if isPatch}}patch{{else}}{{#if isMinor}}minor{{else}}major{{/if}}{{/if}}"
+		}
+	],
     "vulnerabilityAlerts": {
         "enabled": true,
         "groupName": null,
@@ -31,6 +37,7 @@
     },
 	"dependencyDashboardApproval": true,
 	"rangeStrategy": "update-lockfile",
+	"branchConcurrentLimit": 1,
 	"commitMessagePrefix": "cargo: ",
     "automerge": false,
 	"separateMajorMinor": true,
