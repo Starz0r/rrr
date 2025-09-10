@@ -36,7 +36,7 @@
         }
     },
 	"dependencyDashboardApproval": true,
-	"rangeStrategy": "update-lockfile",
+	"rangeStrategy": "bump",
 	"branchConcurrentLimit": 1,
 	"commitMessagePrefix": "cargo: ",
     "automerge": false,
