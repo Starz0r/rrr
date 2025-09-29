@@ -7,6 +7,7 @@ use {
     anyhow::{anyhow, bail, Result},
     clap::{Parser, Subcommand},
     trash,
+	chrono::prelude::*,
 };
 
 #[derive(Debug, Subcommand)]
@@ -43,6 +44,7 @@ fn trash_files(files: Vec<PathBuf>) -> Result<()> {
 }
 
 fn compact_files(from: u64) -> Result<()> {
+	// TODO: measuring this might take some time, so notify the user of that
     let eligible_trash: Vec<_> = trash::os_limited::list()?
         .into_iter()
         .filter(|garbage| {
@@ -56,6 +58,10 @@ fn compact_files(from: u64) -> Result<()> {
         .collect();
 
     let deleted = eligible_trash.len();
+	for garbage in &eligible_trash {
+		let dt: DateTime<Utc> = DateTime::from_utc(NaiveDateTime::from_timestamp(garbage.time_deleted, 0), Utc);
+		println!("Purged: {}\\{}, originally deleted at: {}", &garbage.original_parent.display(), &garbage.name, &dt.format("%Y-%m-%d %H:%M:%S"));
+	}
     trash::os_limited::purge_all(eligible_trash)?;
 
     println!("{deleted} files(s) permanently deleted!");
